@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DealPulse - Local Price Drop Alerts</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: rgba(15, 23, 42, 0.72);
+      --panel-2: #111827;
+      --card: rgba(255,255,255,0.06);
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --line: rgba(255,255,255,0.08);
+      --primary: #22c55e;
+      --primary-dark: #16a34a;
+      --accent: #38bdf8;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --shadow: 0 18px 50px rgba(0,0,0,0.35);
+      --radius: 22px;
+      --radius-sm: 14px;
+      --max: 1180px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: Inter, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), transparent 30%),
+        radial-gradient(circle at top right, rgba(34, 197, 94, 0.16), transparent 25%),
+        linear-gradient(180deg, #020617 0%, #0f172a 100%);
+      color: var(--text);
+      line-height: 1.55;
+      min-height: 100vh;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    .container {
+      width: min(100% - 32px, var(--max));
+      margin: 0 auto;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      backdrop-filter: blur(16px);
+      background: rgba(2, 6, 23, 0.72);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .nav {
+      min-height: 78px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+    }
+
+    .brand-logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: white;
+      box-shadow: var(--shadow);
+      font-size: 1.1rem;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      color: var(--muted);
+      font-size: 0.97rem;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 0;
+      cursor: pointer;
+      border-radius: 999px;
+      padding: 13px 18px;
+      font-weight: 700;
+      font-size: 0.96rem;
+      transition: 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      box-shadow: 0 12px 30px rgba(34, 197, 94, 0.22);
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+
+    .hero {
+      padding: 72px 0 42px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      color: #bae6fd;
+      font-size: 0.9rem;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: clamp(2.2rem, 5vw, 4.25rem);
+      line-height: 1.02;
+      letter-spacing: -0.04em;
+      margin-bottom: 16px;
+      max-width: 12ch;
+    }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 1.06rem;
+      max-width: 60ch;
+      margin-bottom: 24px;
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 28px;
+    }
+
+    .stat {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      backdrop-filter: blur(10px);
+    }
+
+    .stat h3 {
+      font-size: 1.5rem;
+      margin-bottom: 4px;
+    }
+
+    .stat p {
+      margin: 0;
+      font-size: 0.92rem;
+    }
+
+    .hero-card {
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.95), rgba(17, 24, 39, 0.82));
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      inset: -30% auto auto -10%;
+      width: 180px;
+      height: 180px;
+      background: rgba(34, 197, 94, 0.14);
+      filter: blur(50px);
+      border-radius: 999px;
+    }
+
+    .panel-label {
+      font-size: 0.86rem;
+      color: #cbd5e1;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .live-pill {
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(34, 197, 94, 0.12);
+      color: #bbf7d0;
+      font-size: 0.78rem;
+      border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+
+    .deal-list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .deal-item {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .deal-item h4 {
+      font-size: 1rem;
+      margin-bottom: 4px;
+    }
+
+    .deal-meta {
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .price-box {
+      text-align: right;
+    }
+
+    .old-price {
+      color: #94a3b8;
+      text-decoration: line-through;
+      font-size: 0.88rem;
+    }
+
+    .new-price {
+      color: #86efac;
+      font-size: 1.15rem;
+      font-weight: 800;
+    }
+
+    .badge {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      margin-top: 8px;
+      width: fit-content;
+    }
+
+    .badge-red {
+      background: rgba(239, 68, 68, 0.14);
+      color: #fca5a5;
+    }
+
+    .badge-orange {
+      background: rgba(245, 158, 11, 0.14);
+      color: #fcd34d;
+    }
+
+    section {
+      padding: 34px 0;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .section-head h2 {
+      font-size: clamp(1.5rem, 3vw, 2.4rem);
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      margin-bottom: 10px;
+    }
+
+    .section-head p {
+      color: var(--muted);
+      max-width: 62ch;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .feature-card,
+    .deal-card,
+    .step,
+    .form-card,
+    .notify-card,
+    .footer-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 22px;
+      backdrop-filter: blur(14px);
+    }
+
+    .feature-icon,
+    .step-number {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      margin-bottom: 16px;
+      font-weight: 800;
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.24), rgba(56, 189, 248, 0.24));
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .feature-card h3,
+    .step h3,
+    .form-card h3,
+    .notify-card h3 {
+      margin-bottom: 10px;
+      font-size: 1.08rem;
+    }
+
+    .feature-card p,
+    .step p,
+    .notify-card p,
+    .footer-card p {
+      color: var(--muted);
+    }
+
+    .deals-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .deal-card {
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .deal-image {
+      height: 170px;
+      background:
+        linear-gradient(135deg, rgba(34, 197, 94, 0.18), rgba(56, 189, 248, 0.16)),
+        linear-gradient(180deg, #1e293b, #0f172a);
+      display: grid;
+      place-items: center;
+      font-size: 2.2rem;
+    }
+
+    .deal-content {
+      padding: 20px;
+    }
+
+    .deal-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+
+    .deal-content h3 {
+      font-size: 1.06rem;
+      margin-bottom: 4px;
+    }
+
+    .location {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .discount {
+      color: #86efac;
+      font-weight: 800;
+      font-size: 0.95rem;
+      white-space: nowrap;
+    }
+
+    .deal-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-top: 12px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
+    }
+
+    .price-stack strong {
+      display: block;
+      font-size: 1.18rem;
+    }
+
+    .price-stack span {
+      color: var(--muted);
+      text-decoration: line-through;
+      font-size: 0.88rem;
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+    }
+
+    .notify-layout {
+      display: grid;
+      grid-template-columns: 1fr 0.95fr;
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    .mock-alerts {
+      display: grid;
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .alert-box {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .alert-box strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    form {
+      display: grid;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    label {
+      font-size: 0.9rem;
+      color: #dbeafe;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      outline: none;
+      font: inherit;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: #94a3b8;
+    }
+
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: start;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .checkbox-row input {
+      width: 18px;
+      height: 18px;
+      margin-top: 3px;
+    }
+
+    .footer {
+      padding: 24px 0 38px;
+    }
+
+    .footer-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 16px;
+      color: var(--muted);
+      flex-wrap: wrap;
+    }
+
+    .footer-links a:hover {
+      color: var(--text);
+    }
+
+    @media (max-width: 1024px) {
+      .hero-grid,
+      .notify-layout,
+      .grid-3,
+      .deals-grid,
+      .steps-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .nav {
+        flex-wrap: wrap;
+        justify-content: center;
+        padding: 14px 0;
+      }
+
+      .nav-links {
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .hero-grid,
+      .grid-3,
+      .deals-grid,
+      .steps-grid,
+      .notify-layout,
+      .hero-stats {
+        grid-template-columns: 1fr;
+      }
+
+      .section-head,
+      .footer-card {
+        align-items: start;
+        flex-direction: column;
+      }
+
+      h1 {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="container nav">
+      <a href="#" class="brand">
+        <div class="brand-logo">DP</div>
+        <span>DealPulse</span>
+      </a>
+
+      <nav class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#deals">Deals</a>
+        <a href="#how">How it works</a>
+        <a href="#notify">Alerts</a>
+      </nav>
+
+      <div class="btn-group">
+        <a href="#notify" class="btn btn-secondary">View alerts</a>
+        <a href="#signup" class="btn btn-primary">Join early access</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <div class="eyebrow">📍 Local price tracking for real-world deals</div>
+          <h1>Spot cheaper store prices before everyone else.</h1>
+          <p>
+            DealPulse is a concept website for collecting store price data, highlighting the best local deals,
+            and notifying nearby users when prices drop on products they care about.
+          </p>
+
+          <div class="btn-group">
+            <a href="#deals" class="btn btn-primary">See example deals</a>
+            <a href="#how" class="btn btn-secondary">How it works</a>
+          </div>
+
+          <div class="hero-stats">
+            <div class="stat">
+              <h3>1,240+</h3>
+              <p>Tracked products</p>
+            </div>
+            <div class="stat">
+              <h3>87</h3>
+              <p>Nearby stores monitored</p>
+            </div>
+            <div class="stat">
+              <h3>23%</h3>
+              <p>Average featured savings</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-card">
+          <div class="panel-label">
+            <span>Live local deal feed</span>
+            <span class="live-pill">● Updating prices</span>
+          </div>
+
+          <div class="deal-list">
+            <div class="deal-item">
+              <div>
+                <h4>Red Bull 4-pack</h4>
+                <div class="deal-meta">Kiwi • Bergen sentrum • 0.8 km away</div>
+                <div class="badge badge-red">Price drop in last 2 hours</div>
+              </div>
+              <div class="price-box">
+                <div class="old-price">69 kr</div>
+                <div class="new-price">49 kr</div>
+              </div>
+            </div>
+
+            <div class="deal-item">
+              <div>
+                <h4>Frozen Pizza Grandiosa</h4>
+                <div class="deal-meta">Rema 1000 • Danmarksplass • 1.4 km away</div>
+                <div class="badge badge-orange">Popular with 120 nearby users</div>
+              </div>
+              <div class="price-box">
+                <div class="old-price">54 kr</div>
+                <div class="new-price">39 kr</div>
+              </div>
+            </div>
+
+            <div class="deal-item">
+              <div>
+                <h4>Coca-Cola 1.5L</h4>
+                <div class="deal-meta">Extra • Minde • 2.1 km away</div>
+                <div class="badge badge-red">Flash discount detected</div>
+              </div>
+              <div class="price-box">
+                <div class="old-price">34 kr</div>
+                <div class="new-price">22 kr</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="features">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2>Built to turn raw store data into useful local alerts.</h2>
+            <p>
+              This front-end mockup shows the idea: collect prices, compare changes, highlight cheap deals, and match them to users who live nearby.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid-3">
+          <article class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3>Store price collection</h3>
+            <p>Gather price snapshots from stores and display them in one simple interface for comparison.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">📉</div>
+            <h3>Cheap deal detection</h3>
+            <p>Highlight the biggest drops, compare old vs new price, and surface the best value instantly.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">🔔</div>
+            <h3>Nearby user alerts</h3>
+            <p>Show how users in the same area could be notified when products near them suddenly get cheaper.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="deals">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2>Example cheap deals</h2>
+            <p>These are static demo cards for now. Later, your backend can replace them with real scraped or submitted store data.</p>
+          </div>
+        </div>
+
+        <div class="deals-grid">
+          <article class="deal-card">
+            <div class="deal-image">🥤</div>
+            <div class="deal-content">
+              <div class="deal-row">
+                <div>
+                  <h3>Monster Energy 500ml</h3>
+                  <div class="location">Meny • Lagunen</div>
+                </div>
+                <div class="discount">-31%</div>
+              </div>
+              <p class="location">Detected this morning. Trending among students nearby.</p>
+              <div class="deal-footer">
+                <div class="price-stack">
+                  <strong>24 kr</strong>
+                  <span>35 kr</span>
+                </div>
+                <button class="btn btn-secondary">Track item</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="deal-card">
+            <div class="deal-image">🍫</div>
+            <div class="deal-content">
+              <div class="deal-row">
+                <div>
+                  <h3>Freia Chocolate Plate</h3>
+                  <div class="location">Coop Prix • Kronstad</div>
+                </div>
+                <div class="discount">-27%</div>
+              </div>
+              <p class="location">Good impulse buy alert for users within 2 km.</p>
+              <div class="deal-footer">
+                <div class="price-stack">
+                  <strong>16 kr</strong>
+                  <span>22 kr</span>
+                </div>
+                <button class="btn btn-secondary">Track item</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="deal-card">
+            <div class="deal-image">🧻</div>
+            <div class="deal-content">
+              <div class="deal-row">
+                <div>
+                  <h3>Lambi Toilet Paper 12-pack</h3>
+                  <div class="location">Obs • Åsane</div>
+                </div>
+                <div class="discount">-22%</div>
+              </div>
+              <p class="location">High-value household deal flagged for family shoppers.</p>
+              <div class="deal-footer">
+                <div class="price-stack">
+                  <strong>69 kr</strong>
+                  <span>89 kr</span>
+                </div>
+                <button class="btn btn-secondary">Track item</button>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="how">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2>How the concept works</h2>
+            <p>This is the flow the final product could follow once you add JavaScript and a backend later.</p>
+          </div>
+        </div>
+
+        <div class="steps-grid">
+          <article class="step">
+            <div class="step-number">1</div>
+            <h3>Collect prices</h3>
+            <p>Store prices are captured from feeds, manual input, or future scraping pipelines.</p>
+          </article>
+
+          <article class="step">
+            <div class="step-number">2</div>
+            <h3>Compare changes</h3>
+            <p>The system compares current price against previous price to find sudden drops.</p>
+          </article>
+
+          <article class="step">
+            <div class="step-number">3</div>
+            <h3>Match by location</h3>
+            <p>Users can set a home area so they only see deals from stores that are actually close.</p>
+          </article>
+
+          <article class="step">
+            <div class="step-number">4</div>
+            <h3>Send alerts</h3>
+            <p>When a tracked item gets cheaper nearby, users receive a notification instantly.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="notify">
+      <div class="container notify-layout">
+        <article class="notify-card">
+          <h3>Nearby deal alerts</h3>
+          <p>This section visually explains how close-living users could be notified about relevant store price changes.</p>
+
+          <div class="mock-alerts">
+            <div class="alert-box">
+              <strong>🔔 Red Bull 4-pack is now 49 kr</strong>
+              <p>Kiwi Bergen sentrum lowered the price. You are 0.8 km away.</p>
+            </div>
+
+            <div class="alert-box">
+              <strong>🔔 Grandiosa dropped to 39 kr</strong>
+              <p>Rema 1000 Danmarksplass updated the price in the last hour.</p>
+            </div>
+
+            <div class="alert-box">
+              <strong>🔔 Cola 1.5L now 22 kr</strong>
+              <p>Extra Minde has a cheaper price than 3 nearby stores.</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="form-card" id="signup">
+          <h3>Join the waitlist</h3>
+          <p>Static front-end form for now. You can later connect it to a backend or newsletter system.</p>
+
+          <form>
+            <div class="field">
+              <label for="name">Full name</label>
+              <input id="name" type="text" placeholder="Ivan Kuzmych" />
+            </div>
+
+            <div class="field">
+              <label for="email">Email</label>
+              <input id="email" type="email" placeholder="you@example.com" />
+            </div>
+
+            <div class="field">
+              <label for="city">City / area</label>
+              <select id="city">
+                <option>Bergen</option>
+                <option>Oslo</option>
+                <option>Trondheim</option>
+                <option>Stavanger</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="items">Items to track</label>
+              <textarea id="items" placeholder="Energy drinks, pizza, snacks, soda, household items..."></textarea>
+            </div>
+
+            <label class="checkbox-row">
+              <input type="checkbox" checked />
+              <span>I want to receive notifications when nearby stores reduce prices on tracked items.</span>
+            </label>
+
+            <button type="submit" class="btn btn-primary">Get notified</button>
+          </form>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-card">
+        <div>
+          <h3 style="margin-bottom:8px;">DealPulse</h3>
+          <p>Static HTML + CSS concept site for store data collection and local cheap-deal alerts.</p>
+        </div>
+
+        <div class="footer-links">
+          <a href="#features">Features</a>
+          <a href="#deals">Deals</a>
+          <a href="#how">How it works</a>
+          <a href="#notify">Alerts</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
