@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DealPulse — Local Price Drop Alerts</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div id="toast-container" aria-live="polite"></div>
+
+<!-- Nav -->
+<header class="topbar">
+  <div class="container nav">
+    <a href="#" class="brand">DealPulse</a>
+    <nav class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#deals">Deals</a>
+      <a href="#how">How it works</a>
+      <a href="#signup">Alerts</a>
+    </nav>
+    <div class="nav-actions">
+      <a href="#signup" class="btn btn-ghost">Join waitlist</a>
+      <a href="#deals"  class="btn btn-fill">Browse deals</a>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container hero-layout">
+
+      <div class="hero-text">
+        <p class="label">Local price tracking for Norway</p>
+        <h1 class="hero-headline">
+          Every cheaper<br>
+          <em>store price.</em><br>
+          Surfaced.
+        </h1>
+        <p class="hero-body">DealPulse tracks price drops at Norwegian grocery stores near you and alerts you the moment something you care about gets cheaper.</p>
+        <div class="hero-actions">
+          <a href="#deals" class="btn btn-fill">Browse deals</a>
+          <a href="#how"   class="btn btn-outline">How it works</a>
+        </div>
+        <div class="hero-stats" id="hero-stats">
+          <div class="stat skeleton"></div>
+          <div class="stat skeleton"></div>
+          <div class="stat skeleton"></div>
+        </div>
+      </div>
+
+      <div class="hero-panel">
+        <div class="panel-header">
+          <span class="panel-label">Live deal feed</span>
+          <span class="live-dot" aria-hidden="true"></span>
+        </div>
+        <div class="feed-list" id="hero-feed">
+          <div class="feed-item skeleton"></div>
+          <div class="feed-item skeleton"></div>
+          <div class="feed-item skeleton"></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section id="features" class="section-features">
+    <div class="container">
+      <p class="label">What it does</p>
+      <h2 class="display-heading">Built to surface deals<br>before anyone else does.</h2>
+      <div class="features-grid">
+        <article class="feature">
+          <div class="feature-num">01</div>
+          <h3>Store price collection</h3>
+          <p>Price snapshots from stores across Norway, updated continuously and stored in our database.</p>
+        </article>
+        <article class="feature">
+          <div class="feature-num">02</div>
+          <h3>Deal detection</h3>
+          <p>Biggest drops surfaced instantly — old vs. new price compared on every update cycle.</p>
+        </article>
+        <article class="feature">
+          <div class="feature-num">03</div>
+          <h3>Nearby alerts</h3>
+          <p>Users are notified only when tracked items drop in stores within their configured radius.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Deals -->
+  <section id="deals" class="section-deals">
+    <div class="container">
+      <div class="deals-head">
+        <div>
+          <p class="label">Live from the database</p>
+          <h2 class="section-heading">Current deals</h2>
+        </div>
+      </div>
+
+      <div class="filter-bar" id="filter-bar">
+        <div class="filter-group">
+          <label for="filter-city">City</label>
+          <select id="filter-city">
+            <option value="">All cities</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filter-category">Category</label>
+          <select id="filter-category">
+            <option value="">All categories</option>
+          </select>
+        </div>
+        <div class="filter-group filter-search-group">
+          <label for="filter-search">Search</label>
+          <input id="filter-search" type="search" placeholder="Product or store" autocomplete="off" />
+        </div>
+        <button class="btn btn-ghost btn-sm" id="btn-reset-filters">Reset</button>
+      </div>
+
+      <div class="deals-table-head" aria-hidden="true">
+        <span>Product</span>
+        <span>Store</span>
+        <span>Drop</span>
+        <span>Price</span>
+        <span>Updated</span>
+        <span></span>
+      </div>
+
+      <div class="deals-list" id="deals-grid"></div>
+      <p class="empty-msg" id="deals-empty" hidden>No deals match your filters.</p>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section id="how" class="section-how">
+    <div class="container">
+      <p class="label">The process</p>
+      <h2 class="display-heading">From raw data<br>to alert in four steps.</h2>
+      <div class="steps-grid">
+        <article class="step">
+          <div class="step-num">1</div>
+          <h3>Collect prices</h3>
+          <p>Price snapshots are recorded from stores via feeds or manual submissions.</p>
+        </article>
+        <article class="step">
+          <div class="step-num">2</div>
+          <h3>Compare changes</h3>
+          <p>Each new price is compared against the previous entry to detect drops.</p>
+        </article>
+        <article class="step">
+          <div class="step-num">3</div>
+          <h3>Match by location</h3>
+          <p>Users set their area so they only see deals from nearby stores.</p>
+        </article>
+        <article class="step">
+          <div class="step-num">4</div>
+          <h3>Send alerts</h3>
+          <p>When a tracked item gets cheaper nearby, a notification is dispatched instantly.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Signup / Waitlist -->
+  <section id="signup" class="section-signup">
+    <div class="container signup-layout">
+
+      <div class="signup-info">
+        <p class="label">How alerts work</p>
+        <h2 class="section-heading">Get notified the<br>moment prices drop.</h2>
+        <p class="signup-desc">Once you join, we match your tracked items against stores in your city. You get notified the moment a price drops past your chosen threshold.</p>
+
+        <div class="mock-alerts">
+          <div class="alert-item">
+            <div class="alert-product">Red Bull 4-pack</div>
+            <div class="alert-detail">Kiwi Bergen sentrum — dropped from 69 kr to <strong>49 kr</strong></div>
+          </div>
+          <div class="alert-item">
+            <div class="alert-product">Grandiosa Original</div>
+            <div class="alert-detail">Rema 1000 Danmarksplass — price cut in the last hour, now <strong>39 kr</strong></div>
+          </div>
+          <div class="alert-item">
+            <div class="alert-product">Coca-Cola 1.5L</div>
+            <div class="alert-detail">Extra Minde — cheapest of 3 nearby stores at <strong>22 kr</strong></div>
+          </div>
+        </div>
+
+        <div class="track-section">
+          <h4>Track a specific product</h4>
+          <form id="track-form" novalidate>
+            <div class="field">
+              <label for="track-email">Email</label>
+              <input id="track-email" type="email" placeholder="you@example.com" autocomplete="email" />
+            </div>
+            <div class="field">
+              <label for="track-product">Product</label>
+              <select id="track-product">
+                <option value="">Choose a product</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="track-distance">Max distance (km)</label>
+              <input id="track-distance" type="number" value="5" min="1" max="100" />
+            </div>
+            <button type="submit" class="btn btn-outline">Track product</button>
+          </form>
+        </div>
+      </div>
+
+      <article class="form-card">
+        <p class="label">Early access</p>
+        <h3 class="form-card-heading">Join the waitlist</h3>
+        <p class="form-card-sub">Get early access and start receiving local price drop alerts.</p>
+
+        <form id="waitlist-form" novalidate>
+          <div class="field">
+            <label for="wl-name">Full name</label>
+            <input id="wl-name" type="text" placeholder="Ola Nordmann" autocomplete="name" />
+            <span class="field-error" id="err-name"></span>
+          </div>
+          <div class="field">
+            <label for="wl-email">Email</label>
+            <input id="wl-email" type="email" placeholder="you@example.com" autocomplete="email" />
+            <span class="field-error" id="err-email"></span>
+          </div>
+          <div class="field">
+            <label for="wl-city">City</label>
+            <select id="wl-city">
+              <option value="">Select city</option>
+              <option>Bergen</option>
+              <option>Oslo</option>
+              <option>Trondheim</option>
+              <option>Stavanger</option>
+            </select>
+            <span class="field-error" id="err-city"></span>
+          </div>
+          <div class="field">
+            <label for="wl-items">Items you want to track</label>
+            <textarea id="wl-items" placeholder="Energy drinks, pizza, snacks, household items" maxlength="500"></textarea>
+          </div>
+          <label class="checkbox-row">
+            <input type="checkbox" id="wl-notify" checked />
+            <span>Notify me when tracked items drop near me.</span>
+          </label>
+          <button type="submit" class="btn btn-fill" id="btn-waitlist">Get notified</button>
+        </form>
+      </article>
+
+    </div>
+  </section>
+
+</main>
+
+<!-- Price History Modal -->
+<div id="modal-overlay" class="modal-overlay" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <button class="modal-close" id="modal-close" aria-label="Close">&#x2715;</button>
+    <div class="modal-header">
+      <h3 id="modal-title">Price history</h3>
+      <p id="modal-subtitle" class="modal-sub"></p>
+    </div>
+    <div class="chart-container">
+      <canvas id="price-chart"></canvas>
+    </div>
+    <div id="modal-history-list" class="history-list"></div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">
+      <span class="brand">DealPulse</span>
+      <p>Real-time local grocery price tracking for Norway.</p>
+    </div>
+    <nav class="footer-links">
+      <a href="#features">Features</a>
+      <a href="#deals">Deals</a>
+      <a href="#how">How it works</a>
+      <a href="#signup">Alerts</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
